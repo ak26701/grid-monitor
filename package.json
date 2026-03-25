@@ -1,0 +1,19 @@
+{
+  "name": "grid-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev": "concurrently \"npm run dev -w packages/api\" \"npm run dev -w packages/dashboard\"",
+    "lint": "npm run lint --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present && rimraf node_modules"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.4.5"
+  }
+}

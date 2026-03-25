@@ -1,0 +1,20 @@
+{
+  "name": "@grid-monitor/chaincode",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rimraf dist *.tsbuildinfo",
+    "dev": "tsc -p tsconfig.json --watch",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "fabric-shim": "^2.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.4.5"
+  }
+}
