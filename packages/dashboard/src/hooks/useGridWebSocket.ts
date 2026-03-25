@@ -5,7 +5,7 @@ import { ConnectionStatus } from './useGridData';
 type Handler = (msg: WsMessage) => void;
 type StatusHandler = (s: ConnectionStatus) => void;
 
-const WS_URL = (import.meta as { env: { VITE_WS_URL?: string } }).env.VITE_WS_URL ?? 'ws://localhost:3001/ws';
+const WS_URL = (import.meta as unknown as { env: { VITE_WS_URL?: string } }).env.VITE_WS_URL ?? 'ws://localhost:3001/ws';
 const RECONNECT_BASE_MS = 2000;
 const RECONNECT_MAX_MS = 15000;
 

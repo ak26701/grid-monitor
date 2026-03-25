@@ -7,15 +7,17 @@ import { useGridWebSocket } from './hooks/useGridWebSocket';
 
 export default function App() {
   const {
-    gridState, events, readingsHistory, connected,
-    fetchInitialData, handleWsMessage, resolveEvent,
+    gridState, events, readingsAll, participants, connectionStatus,
+    fetchInitialData, handleWsMessage, resolveEvent, setConnectionStatus,
   } = useGridData();
 
   // Load initial data on mount
   useEffect(() => { fetchInitialData(); }, [fetchInitialData]);
 
   // Subscribe to live updates
-  useGridWebSocket(handleWsMessage);
+  useGridWebSocket(handleWsMessage, setConnectionStatus);
+
+  const connected = connectionStatus === 'connected';
 
   return (
     <div className="app">
@@ -30,8 +32,8 @@ export default function App() {
       </header>
 
       <main className="dashboard">
-        <GridStatusCard state={gridState} />
-        <ReadingsChart readings={readingsHistory} />
+        <GridStatusCard state={gridState} participants={participants} />
+        <ReadingsChart readings={readingsAll} />
         <AnomalyPanel events={events} onResolve={resolveEvent} />
       </main>
     </div>
