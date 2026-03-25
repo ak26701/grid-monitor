@@ -10,6 +10,8 @@ export interface EnergyReading {
   voltageV: number;
   frequencyHz: number;
   timestamp: string;
+  blockHeight?: number;
+  txId?: string;
 }
 
 export type GridEventSeverity = 'info' | 'warning' | 'critical';
@@ -39,9 +41,31 @@ export interface GridState {
   activeParticipants: string[];
   unresolvedEventCount: number;
   lastUpdated: string;
+  blockHeight?: number;
+}
+
+export interface ParticipantSnapshot {
+  participantId: string;
+  role: ParticipantRole;
+  supplyKW: number;
+  demandKW: number;
+  voltageV: number;
+  frequencyHz: number;
+  lastUpdated: string;
+}
+
+export interface NetworkStats {
+  blockHeight: number;
+  totalReadings: number;
+  totalEvents: number;
+  unresolvedEvents: number;
+  organizations: string[];
+  tps: number;
 }
 
 export interface WsMessage {
   type: 'grid_state' | 'new_reading' | 'grid_event' | 'event_resolved' | 'error';
   payload: unknown;
 }
+
+export type TabId = 'overview' | 'monitor' | 'anomalies' | 'network';
