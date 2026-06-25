@@ -1,0 +1,46 @@
+import { MarketMatch } from '../types';
+
+export const matches: MarketMatch[] = [
+  {
+    id: 'match-1', providerId: 'voltage-park', providerName: 'Voltage Park',
+    companyId: 'perplexity', companyName: 'Perplexity AI', matchScore: 93,
+    reasoning: 'Voltage Park\'s 59% utilization makes them the most motivated supplier in the market. Perplexity\'s inference-only, reserved-preferred profile and $250M fresh raise makes them the most motivated buyer. US-West overlap. Both need this deal.',
+    estimatedAnnualValue: '$14.2M ARR', gpuModel: 'H100_SXM5', suggestedContract: 'reserved',
+    estimatedGPUs: 800, timeToClose: '2–3 weeks', priority: 'high',
+  },
+  {
+    id: 'match-2', providerId: 'coreweave', providerName: 'CoreWeave',
+    companyId: 'character-ai', companyName: 'Character.ai', matchScore: 87,
+    reasoning: 'CoreWeave\'s enterprise SLA capabilities match Character.ai\'s 20M+ DAU inference requirements. Both in US-West. CoreWeave needs revenue certainty for debt service; Character.ai needs uptime guarantees.',
+    estimatedAnnualValue: '$21.1M ARR', gpuModel: 'H100_SXM5', suggestedContract: 'reserved',
+    estimatedGPUs: 1000, timeToClose: '3–5 weeks', priority: 'high',
+  },
+  {
+    id: 'match-3', providerId: 'nebius', providerName: 'Nebius',
+    companyId: 'mistral', companyName: 'Mistral AI', matchScore: 91,
+    reasoning: 'Nebius\'s EU-first footprint (eu-west + eu-central) directly matches Mistral\'s non-negotiable EU data residency requirements. Nebius needs utilization; Mistral needs EU supply post-Mistral Large 3 demand surge.',
+    estimatedAnnualValue: '$11.4M ARR', gpuModel: 'H100_SXM5', suggestedContract: 'reserved',
+    estimatedGPUs: 700, timeToClose: '3–4 weeks', priority: 'high',
+  },
+  {
+    id: 'match-4', providerId: 'nebius', providerName: 'Nebius',
+    companyId: 'aleph-alpha', companyName: 'Aleph Alpha', matchScore: 84,
+    reasoning: 'Aleph Alpha requires EU-sovereign compute for German government contracts. Nebius\'s eu-central coverage is one of the few options meeting their data residency requirements.',
+    estimatedAnnualValue: '$8.1M ARR', gpuModel: 'H100_SXM5', suggestedContract: 'reserved',
+    estimatedGPUs: 500, timeToClose: '6–8 weeks', priority: 'medium',
+  },
+  {
+    id: 'match-5', providerId: 'crusoe', providerName: 'Crusoe Energy',
+    companyId: 'stability', companyName: 'Stability AI', matchScore: 79,
+    reasoning: 'Crusoe\'s competitive pricing addresses Stability AI\'s budget sensitivity. Training-heavy workloads are a natural fit for Crusoe\'s dedicated training infrastructure.',
+    estimatedAnnualValue: '$5.8M ARR', gpuModel: 'H100_SXM5', suggestedContract: 'on-demand',
+    estimatedGPUs: 300, timeToClose: '4–6 weeks', priority: 'medium',
+  },
+  {
+    id: 'match-6', providerId: 'lambda-labs', providerName: 'Lambda Labs',
+    companyId: 'imbue', companyName: 'Imbue', matchScore: 82,
+    reasoning: 'Lambda\'s developer-friendly infrastructure and US-West presence matches Imbue\'s engineering team preferences. Long-run training workloads benefit from Lambda\'s reserved rates, saving ~$800K annually.',
+    estimatedAnnualValue: '$4.3M ARR', gpuModel: 'H100_SXM5', suggestedContract: 'reserved',
+    estimatedGPUs: 250, timeToClose: '2–4 weeks', priority: 'medium',
+  },
+];
