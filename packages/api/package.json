@@ -13,7 +13,6 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.19.2",
-    "fabric-network": "^2.2.20",
     "ws": "^8.17.0",
     "dotenv": "^16.4.5"
   },

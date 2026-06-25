@@ -1,40 +1,67 @@
-import { useEffect } from 'react';
-import { GridStatusCard } from './components/GridStatusCard';
-import { ReadingsChart } from './components/ReadingsChart';
-import { AnomalyPanel } from './components/AnomalyPanel';
-import { useGridData } from './hooks/useGridData';
-import { useGridWebSocket } from './hooks/useGridWebSocket';
+import { useEffect, useState } from 'react';
+import { MarketHeader } from './components/MarketHeader';
+import { SupplyPanel } from './components/SupplyPanel';
+import { DemandPanel } from './components/DemandPanel';
+import { PriceIndexChart } from './components/PriceIndexChart';
+import { MatchPanel } from './components/MatchPanel';
+import { AlertPanel } from './components/AlertPanel';
+import { useMarketData } from './hooks/useMarketData';
+import { useWebSocket } from './hooks/useWebSocket';
+import { TabId } from './types';
+
+const TABS: { id: TabId; label: string; count?: (s: ReturnType<typeof useMarketData>['state']) => number }[] = [
+  { id: 'supply',  label: 'Supply Side',  count: s => s.providers.length },
+  { id: 'demand',  label: 'Demand Side',  count: s => s.companies.length },
+  { id: 'market',  label: 'Market Index' },
+  { id: 'matches', label: 'Matches',      count: s => s.matches.length },
+  { id: 'alerts',  label: 'Intel Feed',   count: s => s.alerts.filter(a => a.severity === 'opportunity').length },
+];
 
 export default function App() {
-  const {
-    gridState, events, readingsAll, participants, connectionStatus,
-    fetchInitialData, handleWsMessage, resolveEvent, setConnectionStatus,
-  } = useGridData();
+  const [tab, setTab] = useState<TabId>('supply');
+  const { state, fetchAll, handlePriceUpdate, handleNewAlert, setConnected } = useMarketData();
 
-  // Load initial data on mount
-  useEffect(() => { fetchInitialData(); }, [fetchInitialData]);
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  // Subscribe to live updates
-  useGridWebSocket(handleWsMessage, setConnectionStatus);
-
-  const connected = connectionStatus === 'connected';
+  useWebSocket({
+    onPriceUpdate: handlePriceUpdate,
+    onNewAlert: handleNewAlert,
+    onConnect: () => setConnected(true),
+    onDisconnect: () => setConnected(false),
+  });
 
   return (
     <div className="app">
-      <header className="app-header">
-        <div className="header-left">
-          <h1>Grid Monitor</h1>
-          <span className="subtitle">Decentralized Energy Ledger</span>
-        </div>
-        <div className={`connection-dot ${connected ? 'connected' : 'disconnected'}`}>
-          {connected ? 'Ledger Connected' : 'Connecting...'}
-        </div>
-      </header>
+      <MarketHeader
+        liveIndex={state.liveIndex}
+        marketData={state.index}
+        connected={state.connected}
+      />
 
-      <main className="dashboard">
-        <GridStatusCard state={gridState} participants={participants} />
-        <ReadingsChart readings={readingsAll} />
-        <AnomalyPanel events={events} onResolve={resolveEvent} />
+      <nav className="tab-nav">
+        {TABS.map(t => {
+          const cnt = t.count?.(state);
+          return (
+            <button
+              key={t.id}
+              className={`tab-btn ${tab === t.id ? 'active' : ''}`}
+              onClick={() => setTab(t.id)}
+            >
+              {t.label}
+              {cnt != null && (
+                <span className={`tab-count ${tab === t.id ? 'active' : ''}`}>{cnt}</span>
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      <main className="main-content">
+        {tab === 'supply'  && <SupplyPanel providers={state.providers} />}
+        {tab === 'demand'  && <DemandPanel companies={state.companies} />}
+        {tab === 'market'  && <PriceIndexChart marketData={state.index} />}
+        {tab === 'matches' && <MatchPanel matches={state.matches} />}
+        {tab === 'alerts'  && <AlertPanel alerts={state.alerts} />}
       </main>
     </div>
   );

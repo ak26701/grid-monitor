@@ -2,58 +2,58 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
-import { createWsServer } from './ws';
-import readingsRouter from './routes/readings';
-import gridRouter from './routes/grid';
+import { WebSocketServer, WebSocket } from 'ws';
+import supplyRouter from './routes/supply';
+import demandRouter from './routes/demand';
+import marketRouter, { pushAlert } from './routes/market';
+import matchesRouter from './routes/matches';
+import { onPriceUpdate, onAlert } from './simulator';
+import { WsMessage } from './types';
 
 const PORT = parseInt(process.env.PORT ?? '3001', 10);
-const USE_MOCK = process.env.USE_MOCK === 'true';
 
 const app = express();
-
 app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173' }));
 app.use(express.json());
 
-// Health check
 app.get('/health', (_req, res) =>
-  res.json({ status: 'ok', mode: USE_MOCK ? 'mock' : 'fabric', ts: new Date().toISOString() }),
+  res.json({ status: 'ok', ts: new Date().toISOString() }),
 );
 
-// API routes
-app.use('/api/readings', readingsRouter);
-app.use('/api/grid', gridRouter);
-
-// 404 fallback
+app.use('/api/supply', supplyRouter);
+app.use('/api/demand', demandRouter);
+app.use('/api/market', marketRouter);
+app.use('/api/matches', matchesRouter);
 app.use((_req, res) => res.status(404).json({ error: 'Not found' }));
 
-// Attach WS server to the same HTTP server
 const server = createServer(app);
-createWsServer(server);
+const wss = new WebSocketServer({ server, path: '/ws' });
 
-server.listen(PORT, () => {
-  console.log(`[API] listening on http://localhost:${PORT}  (mode: ${USE_MOCK ? 'MOCK' : 'FABRIC'})`);
-  console.log(`[WS]  listening on ws://localhost:${PORT}/ws`);
-});
-
-// In mock mode, launch the IoT simulator in-process after a short boot delay
-// so readings start flowing immediately without needing a separate terminal.
-if (USE_MOCK) {
-  setTimeout(() => {
-    console.log('[SIM] starting in-process simulator...');
-    import('./simulator').catch((e: Error) => {
-      console.error('[SIM] failed to start simulator:', e.message);
-    });
-  }, 500);
+function broadcast(msg: WsMessage) {
+  const data = JSON.stringify(msg);
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) client.send(data);
+  });
 }
 
-// Graceful shutdown
-const shutdown = async () => {
-  console.log('\n[API] shutting down...');
-  if (!USE_MOCK) {
-    const { disconnect } = await import('./fabricClient');
-    await disconnect();
-  }
-  server.close(() => process.exit(0));
-};
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+wss.on('connection', (ws) => {
+  console.log('[WS] client connected');
+  ws.on('close', () => console.log('[WS] client disconnected'));
+});
+
+onPriceUpdate((prices, index) => {
+  broadcast({ type: 'price_update', payload: { prices, index } });
+});
+
+onAlert((alert) => {
+  pushAlert(alert);
+  broadcast({ type: 'new_alert', payload: alert });
+});
+
+server.listen(PORT, () => {
+  console.log(`[API] http://localhost:${PORT}`);
+  console.log(`[WS]  ws://localhost:${PORT}/ws`);
+});
+
+process.on('SIGINT', () => { server.close(() => process.exit(0)); });
+process.on('SIGTERM', () => { server.close(() => process.exit(0)); });
